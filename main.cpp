@@ -66,13 +66,7 @@ struct PlayerMovement : ECS::Component {
     }
 };
 
-#define DEBUG
-
 int main() {
-#ifdef DEBUG
-    std::filesystem::current_path("../../../../CG Engine/");
-#endif
-
     // Setup the window and input systems
 
     if (!Window::Setup(1600, 900, "Burst Engine : Setup")) {
