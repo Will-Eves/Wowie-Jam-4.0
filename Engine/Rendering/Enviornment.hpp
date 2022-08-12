@@ -66,7 +66,6 @@ namespace Burst {
         }
 
         void SetProjectionMatrix(glm::mat4 projection) {
-            skyboxShader.Bind();
             skyboxShader.SendMatrix4("projectionMatrix", projection);
         }
 

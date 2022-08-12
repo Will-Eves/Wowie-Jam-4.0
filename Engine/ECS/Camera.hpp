@@ -8,6 +8,10 @@ namespace Burst {
 
 		virtual void Start() {
 			Burst::Enviornment::SetProjectionMatrix(this->projectionMatrix);
+
+			for (Shader* shader : ShaderManager::shaders) {
+				shader->SendMatrix4("projectionMatrix", this->projectionMatrix);
+			}
 		}
 
 		virtual void Update() {
@@ -19,8 +23,12 @@ namespace Burst {
 		virtual void Render() {
 			glm::mat4 viewMatrix = this->parent->transform.GetViewMatrix();
 
+			float x = this->parent->transform.position.x;
+			float y = this->parent->transform.position.y;
+			float z = -this->parent->transform.position.z;
+
 			for (Shader* shader : ShaderManager::shaders) {
-				shader->SendMatrix4("projectionMatrix", this->projectionMatrix);
+				shader->SendFloat3("cameraPosition", x, y, z);
 				shader->SendMatrix4("viewMatrix", viewMatrix);
 			}
 		}
