@@ -8,6 +8,10 @@ struct PlayerMovement : ECS::Component {
     float speed = 2.0f;
     float jumpHeight = 3.0f;
 
+    virtual void Start() {
+        Input::DisableCursor();
+    }
+
     virtual void Update() {
         // Lock the cursor if the window is focused
         if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) Input::EnableCursor();
@@ -83,21 +87,20 @@ int main() {
     Shader shader("res/Shaders/basic_vertex.shader", "res/Shaders/basic_fragment.shader");
 
     // Load PBR Texture
-    Material mat(&shader);
-    mat.albedo = Color(255.0f, 255.0f, 255.0f);
-    Texture pbrAlbedo("res/Images/PBR/albedo.png");
-    mat.albedoMap = &pbrAlbedo;
-    mat.albedoTiling = Vector2(2.0f, 2.0f);
-    Texture pbrRoughness("res/Images/PBR/roughness.png");
-    mat.roughnesssMap = &pbrRoughness;
-    mat.roughnessTiling = Vector2(2.0f, 2.0f);
-    Texture pbrMetallic("res/Images/PBR/metallic.png");
-    mat.metallicMap = &pbrMetallic;
-    mat.metallicTiling = Vector2(2.0f, 2.0f);
-    // Normal maps not working right now
-    // So no normal Map
+    Material redMaterial(&shader);
+    redMaterial.albedo = Color(255.0f, 0.0f, 0.0f);
+    redMaterial.roughness = 0.2f;
+    redMaterial.metallic = 0.4f;
 
-    Mesh mesh("res/Models/Sphere.obj");
+    Material grassMaterial(&shader);
+    Texture grass("res/Images/Grass.png");
+    grassMaterial.albedoMap = &grass;
+    grassMaterial.albedoTiling = Vector2(5.0f, 5.0f);
+    grassMaterial.roughness = 0.9f;
+    grassMaterial.metallic = 0.01f;
+
+    Mesh sphereMesh("res/Models/Sphere.obj");
+    Mesh planeMesh("res/Models/Plane.obj");
 
     // This is where to create your scene and entities
 
@@ -109,14 +112,21 @@ int main() {
 
     ECS::Entity* sphere = scene.AddEntity();
     sphere->transform.position.z = 2.0f;
-    sphere->AddComponent<MeshRenderer>(&mesh, &mat);
+    sphere->AddComponent<MeshRenderer>(&sphereMesh, &redMaterial);
+
+    ECS::Entity* ground = scene.AddEntity();
+    ground->transform.position = Vector3(0.0f, -0.5f, 0.0f);
+    ground->transform.rotation = Vector3(3.14159 / 2.0f, 0.0f, 0.0f);
+    ground->transform.scale = Vector3(10.0f, 10.0f, 1.0f);
+    ground->AddComponent<MeshRenderer>(&planeMesh, &grassMaterial);
 
     // Enviornment Stuff
     Enviornment::Setup();
     Texture skybox("res/Images/Skybox.hdr", false, true, TEXTURE_HDR);
     Enviornment::SetSkybox(&skybox);
 
-    Input::DisableCursor();
+    // Start the scene
+    scene.Start();
 
     while (!Window::WindowShouldClose() && App::running){
         Input::Update();
