@@ -1,6 +1,13 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 
-add_executable (CMakeTarget "main.cpp" "Burst Engine.h" "Engine/File/obj_loader.h" "Engine/File/stb_image.h" "Engine/Engine/Engine.h" "Engine/Rendering/Renderer.h" "Engine/App/Window.h" "Engine/App/App.h" "Engine/World/Vector3.h" "Engine/World/Vector2.h" "Engine/Input/Input.h" "Engine/Rendering/VertexObject.h" "Engine/Rendering/AttribObject.h" "Engine/Rendering/IndexObject.h" "Engine/Rendering/RenderObject.h" "Engine/Rendering/Shader.h" "Engine/Rendering/Mesh.h" "Engine/Rendering/Enviornment.h" "Engine/Rendering/Material.h" "Engine/Rendering/Color.h" "Engine/Rendering/Texture.h" "Engine/World/Transform.h" "Engine/ECS/ECS.h" "Engine/ECS/Camera.h" "Engine/ECS/MeshRenderer.h")
+file(GLOB SRC
+     "*.h"
+     "*.hpp"
+     "*.c"
+     "*.cpp"
+)
+
+add_executable (CMakeTarget ${SRC})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET CMakeTarget PROPERTY CXX_STANDARD 20)
