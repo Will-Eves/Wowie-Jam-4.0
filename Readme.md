@@ -1,2 +1,2 @@
-# Epic Game
-There is nothing here yet
+# Burst
+There will be compile instrusctions later
