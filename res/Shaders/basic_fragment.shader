@@ -3,6 +3,8 @@
 in vec2 albedoCoordinate;
 
 struct Material {
+	float alpha;
+
 	vec3 albedo;
 	vec2 albedoTiling;
 	sampler2D albedoMap;
@@ -35,11 +37,23 @@ struct Material {
 
 struct Enviornment {
 	sampler2D skybox;
+	vec3 irradiance;
+};
+
+struct Light {
+	vec3 lightPosition;
+
+	vec3 lightColor;
+
+	int isDirectional;
 };
 
 uniform Material material;
 
 uniform Enviornment enviornment;
+
+uniform int lightCount;
+uniform Light[10] lights;
 
 // PBR Stuff
 in vec3 fragmentPosition;
@@ -94,7 +108,8 @@ vec2 SampleSphericalMap(vec3 v) {
 vec4 PBR() {
 	// AO = Ambient Occlusion
 
-	vec3 bloom = material.emissive;
+	vec3 emissive = (material.emissive * (1.0f - material.hasEmissiveMap)) + (texture2D(material.emissiveMap, albedoCoordinate * material.emissiveTiling).rgb * material.hasEmissiveMap);
+	vec3 bloom = emissive;
 
 	vec3 albedo = (material.albedo * (1.0f - material.hasAlbedoMap)) + (material.albedo * texture2D(material.albedoMap, albedoCoordinate * material.albedoTiling).rgb * material.hasAlbedoMap);
 
@@ -107,27 +122,22 @@ vec4 PBR() {
 
 	float ao = 1.0;
 
-	vec3 lightPosition = vec3(1.0, 0.75, 0.75);
-	vec3 lightColor = vec3(1.0);
-
 	vec3 N = (normalize(normal) * (1.0f - material.hasNormalMap)) + (normalize(normalMatrix * (texture2D(material.normalMap, albedoCoordinate * material.normalTiling).rgb * 2.0 - 1.0)) * material.hasNormalMap * -1.0f);
-
-	//return vec4(N * 0.5 + 0.5, 1.0);
 
 	vec3 V = normalize(cameraPosition - fragmentPosition);
 
 	vec3 Lo = vec3(0.0);
-	for (int i = 0; i < 1; i++) {
-		vec3 L = normalize(lightPosition);
+	for (int i = 0; i < lightCount; i++) {
+		vec3 L = normalize(lights[i].lightPosition - fragmentPosition * (1 - lights[i].isDirectional));
 		vec3 H = normalize(V + L);
 
-		float distance = length(lightPosition - fragmentPosition);
+		float distance = length(lights[i].lightPosition - fragmentPosition);
 
 		// Directional Light
-		distance = 1.0f;
-
+		distance = length(lights[i].lightPosition - fragmentPosition);
+		if (lights[i].isDirectional == 1) distance = 1.0f;
 		float attenuation = 1.0 / (distance * distance);
-		vec3 radiance = lightColor * attenuation;
+		vec3 radiance = lights[i].lightColor * attenuation;
 
 		F0 = mix(F0, albedo, metallic);
 		vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
@@ -169,13 +179,14 @@ vec4 PBR() {
 	// Add IBL to current color
 	// Do this later
 
-	return vec4(color, 1.0);
+	return vec4(color + emissive, 1.0);
 }
 
 layout(location = 0) out vec4 color;
 
 void main() {
 	color = PBR();
+	color.w = material.alpha;
 
 	if(color.w == 0) discard;
 }

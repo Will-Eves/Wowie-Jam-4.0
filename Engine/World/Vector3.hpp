@@ -22,8 +22,48 @@ namespace Burst {
 			return *this;
 		}
 
+		void Rotate(Vector3 in) {
+			float pitch = in.x;
+			float yaw = in.y;
+			float roll = in.z;
+
+			float cosa = cos(yaw);
+			float sina = sin(yaw);
+
+			float cosb = cos(pitch);
+			float sinb = sin(pitch);
+
+			float cosc = cos(roll);
+			float sinc = sin(roll);
+
+			float Axx = cosa * cosb;
+			float Axy = cosa * sinb * sinc - sina * cosc;
+			float Axz = cosa * sinb * cosc + sina * sinc;
+
+			float Ayx = sina * cosb;
+			float Ayy = sina * sinb * sinc + cosa * cosc;
+			float Ayz = sina * sinb * cosc - cosa * sinc;
+
+			float Azx = -sinb;
+			float Azy = cosb * sinc;
+			float Azz = cosb * cosc;
+
+			float px = x;
+			float py = y;
+			float pz = z;
+
+			x = Axx * px + Axy * py + Axz * pz;
+			y = Ayx * px + Ayy * py + Ayz * pz;
+			z = Azx * px + Azy * py + Azz * pz;
+		}
+
 		static float Dot(Vector3 a, Vector3 b) {
 			return a.x*b.x + a.y*b.y + a.z*b.z;
+		}
+
+		static float Distance(Vector3 a, Vector3 b) {
+			Vector3 c = a - b;
+			return c.Length();
 		}
 
 		static Vector3 Cross(Vector3 a, Vector3 b) {

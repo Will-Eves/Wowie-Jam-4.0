@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.8)
- 
-project("Burst Engine")
+
+project("Burst Enine")
 
 file(GLOB SRC
      "*.h"
@@ -11,9 +11,7 @@ file(GLOB SRC
 
 add_executable (CMakeTarget ${SRC})
 
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET CMakeTarget PROPERTY CXX_STANDARD 20)
-endif()
+set_property(TARGET CMakeTarget PROPERTY CXX_STANDARD 20)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -29,3 +27,9 @@ include_directories("libs/glew/include")
 
 add_subdirectory(libs/glm)
 include_directories("libs/glm")
+
+add_subdirectory(libs/freetype)
+target_link_libraries(CMakeTarget freetype)
+include_directories("libs/freetype/include")
+
+include_directories("libs/irrKlang/include")

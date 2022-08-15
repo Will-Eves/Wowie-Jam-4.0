@@ -1,7 +1,7 @@
-// ECS and GUID
+// ECS and ID
 #include <vector>
 
-// GUID
+// ID
 #include <sstream>
 #include <random>
 #include <climits>
@@ -11,7 +11,7 @@
 #include <ctime>
 
 namespace Burst{
-    namespace GUID{
+    namespace ID{
         const char characters[62] = {
             '0',
             '1',
@@ -81,11 +81,11 @@ namespace Burst{
         std::mt19937 gen(rd()); 
         std::uniform_int_distribution<> dis(0, 61);
 
-        bool guidInitDone = false;
+        bool IDInitDone = false;
 
-        void InitGuid(){
+        void InitID(){
             gen.seed(time(NULL));
-            guidInitDone = true;
+            IDInitDone = true;
         }
 
         struct ID{
@@ -100,8 +100,8 @@ namespace Burst{
             }
         };
 
-        ID NewGuid(){
-            if(!guidInitDone) InitGuid();
+        ID NewID(){
+            if(!IDInitDone) InitID();
 
             std::string out;
 
@@ -143,11 +143,12 @@ namespace Burst{
         struct Component{
             Entity* parent;
 
-            GUID::ID id;
+            ID::ID id;
 
             virtual void Start() {}
             virtual void Update() {}
             virtual void Render() {}
+            virtual void UIRender() {}
         };
 
         class Entity{
@@ -162,13 +163,13 @@ namespace Burst{
 
             TagList tags;
 
-            GUID::ID id;
+            ID::ID id;
 
             template <typename T, typename... Args>
 		    T* AddComponent(Args&&... args) {
 		    	T* component = new T(std::forward<Args>(args)...);
                 component->parent = this;
-                component->id = GUID::NewGuid();
+                component->id = ID::NewID();
 
                 this->components.push_back(component);
 
@@ -208,6 +209,12 @@ namespace Burst{
                 }
             }
 
+            void UIRender() {
+                for (Component* component : this->components) {
+                    component->UIRender();
+                }
+            }
+
             void Remove(){
                 for(Component* component : this->components){
                     delete component;
@@ -222,14 +229,14 @@ namespace Burst{
 
             std::string name = "Scene";
 
-            GUID::ID id;
+            ID::ID id;
 
             Scene(std::string _name="Scene"){
                 name = _name;
-                id = GUID::NewGuid();
+                id = ID::NewID();
             }
 
-            Entity* GetEntityById(GUID::ID _id){
+            Entity* GetEntityById(ID::ID _id){
                 for(Entity* entity : this->entities){
                     if(entity->id.data == _id.data){
                         return entity;
@@ -267,7 +274,7 @@ namespace Burst{
             Entity* AddEntity(std::string _name="Entity", std::string _mainTag="Entity"){
                 Entity* entity = new Entity;
                 entity->name = _name;
-                entity->id = GUID::NewGuid();
+                entity->id = ID::NewID();
                 entity->tags.AddTag(_mainTag);
 
                 this->entities.push_back(entity);
@@ -306,6 +313,12 @@ namespace Burst{
             void Render() {
                 for (Entity* entity : this->entities) {
                     entity->Render();
+                }
+            }
+
+            void UIRender() {
+                for (Entity* entity : this->entities) {
+                    entity->UIRender();
                 }
             }
 

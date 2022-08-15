@@ -3,6 +3,7 @@
 namespace Burst {
 	namespace Enviornment {
 		Texture* skyboxTexture;
+        Texture defaultSkybox;
 
         Shader skyboxShader;
 
@@ -10,6 +11,9 @@ namespace Burst {
 
 		void Setup() {
             skyboxShader = Shader("engine_res/Shaders/skybox_vertex.shader", "engine_res/Shaders/skybox_fragment.shader", true);
+
+            defaultSkybox = Texture("engine_res/Images/Basic Skybox.png");
+            skyboxTexture = &defaultSkybox;
 
             std::vector<float> positions = {
                 -0.5f, -0.5f, -0.5f,

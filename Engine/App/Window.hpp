@@ -83,13 +83,20 @@ namespace Burst {
             }
         }
 
-        bool Setup(int _width=800, int _height=800, std::string name="Burst Engine : Game") {
+        bool Setup(int _width=800, int _height=800, std::string name="Burst Engine : Game", bool canResize=false, bool fullscreen=false) {
             if (!glfwInit()) return false;
 
             width = _width;
             height = _height;
 
-            window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
+            if (fullscreen) {
+                const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+                width = mode->width;
+                height = mode->height;
+            }
+
+            window = glfwCreateWindow(width, height, name.c_str(), (fullscreen ? glfwGetPrimaryMonitor() : NULL), NULL);
             if (!window) {
                 glfwTerminate();
                 return false;
@@ -106,12 +113,16 @@ namespace Burst {
             glfwWindowHint(GLFW_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_VERSION_MINOR, 4);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwSetWindowAttrib(window, GLFW_RESIZABLE, canResize);
 
             // Turns on vsync
-            glfwSwapInterval(1);
+            glfwSwapInterval(0);
 
             // Enabling basic OpenGL Tests
+            // Depth Testing
             glEnable(GL_DEPTH_TEST);
+
+            // Alpha Blending
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

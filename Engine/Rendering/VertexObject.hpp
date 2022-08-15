@@ -3,6 +3,7 @@ namespace Burst {
 	private:
 		unsigned int buffer;
 		unsigned int vao;
+		unsigned int drawtype;
 	public:
 		unsigned int vertexCount = 0;
 
@@ -12,7 +13,9 @@ namespace Burst {
 			vertexCount = 0;
 		}
 
-		VertexObject(float* data, unsigned int _vertexCount, AttribObject* ao, unsigned int drawtype = GL_STATIC_DRAW) {
+		VertexObject(float* data, unsigned int _vertexCount, AttribObject* ao, unsigned int _drawtype = GL_STATIC_DRAW) {
+			drawtype = _drawtype;
+
 			glGenVertexArrays(1, &vao);
 			glBindVertexArray(vao);
 			glGenBuffers(1, &buffer);
@@ -27,8 +30,10 @@ namespace Burst {
 			vertexCount = _vertexCount;
 		}
 
-		VertexObject(std::vector<float> data, AttribObject* ao, unsigned int drawtype = GL_STATIC_DRAW) {
+		VertexObject(std::vector<float> data, AttribObject* ao, unsigned int _drawtype = GL_STATIC_DRAW) {
 			if (data.size() == 0) return;
+
+			drawtype = _drawtype;
 
 			glGenVertexArrays(1, &vao);
 			glBindVertexArray(vao);
@@ -44,12 +49,22 @@ namespace Burst {
 			vertexCount = data.size();
 		}
 
+		void BufferData(std::vector<float> data) {
+			glBindVertexArray(vao);
+			glBindBuffer(GL_ARRAY_BUFFER, buffer);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), &data[0], drawtype);
+		}
+
 		void Bind() {
 			glBindVertexArray(vao);
 		}
 
 		void Unbind() {
 			glBindVertexArray(0);
+		}
+
+		void DeleteData() {
+			glDeleteBuffers(1, &vao);
 		}
 	};
 }

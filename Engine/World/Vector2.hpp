@@ -23,6 +23,11 @@ namespace Burst {
 			return a.x*b.x + a.y*b.y;
 		}
 
+		static float Distance(Vector2 a, Vector2 b) {
+			Vector2 c = a - b;
+			return c.Length();
+		}
+
 		const Vector2& operator+(const Vector2& other) {
 			return Vector2(this->x + other.x, this->y + other.y);
 		}
